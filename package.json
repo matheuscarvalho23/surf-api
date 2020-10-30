@@ -1,0 +1,27 @@
+{
+  "name": "surf-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "yarn build && node dist/src/index.js",
+    "dev:server": "ts-node-dev src/index.ts",
+    "lint": "eslint ./src ./test --ext .ts",
+    "lint:fix": "eslint ./src ./test --ext .ts --fix"
+  },
+  "repository": "https://github.com/matheuscarvalho23/surf-api.git",
+  "author": "Matheus Carvalho <47832724+matheuscarvalho23@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/module-alias": "^2.0.0",
+    "@types/node": "^14.14.6",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "eslint": "^7.12.1",
+    "ts-node-dev": "^1.0.0",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.2"
+  }
+}

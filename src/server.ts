@@ -23,7 +23,7 @@ export class SetupServer extends Server {
   }
 
   private setupControllers(): void {
-    const forecastController = new ForecastController;
-    this.addControllers([forecastController])
+    const forecastController = new ForecastController();
+    this.addControllers([forecastController]);
   }
 }

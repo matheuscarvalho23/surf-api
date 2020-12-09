@@ -1,4 +1,5 @@
 import { ForecastPoint, StormGlass } from '@src/clients/stormGlass';
+import { InternalError } from '@src/util/errors/internal-error';
 
 export enum BeachPosition {
   S = 'S',
@@ -22,6 +23,12 @@ export interface TimeForacast {
   forecast: BeachForecast[];
 }
 
+export class ForecastProcessingError extends InternalError {
+  constructor(message: string) {
+    super(`Unexpected error during the forecast processing: ${message}`);
+  }
+}
+
 export class Forecast {
   constructor(protected stormGlass = new StormGlass()) {}
 
@@ -30,24 +37,35 @@ export class Forecast {
   ): Promise<TimeForacast[]> {
     const pointsWithCorrectSources: BeachForecast[] = [];
 
-    for (const beach of beaches) {
-      const points = await this.stormGlass.fetchPoints(beach.lat, beach.lng);
+    try {
+      for (const beach of beaches) {
+        const points = await this.stormGlass.fetchPoints(beach.lat, beach.lng);
 
-      const enrichedBeachData = points.map((e) => ({
-        ...{},
-        ...{
-          lat: beach.lat,
-          lng: beach.lng,
-          name: beach.name,
-          position: beach.position,
-          rating: 1, //need to be implemented
-        },
-        ...e,
-      }));
-      pointsWithCorrectSources.push(...enrichedBeachData);
+        const enrichedBeachData = this.enrichedBeachData(points, beach);
+        pointsWithCorrectSources.push(...enrichedBeachData);
+      }
+
+      return this.mapForeacastByTime(pointsWithCorrectSources);
+    } catch (error) {
+      throw new ForecastProcessingError(error.message);
     }
+  }
 
-    return this.mapForeacastByTime(pointsWithCorrectSources);
+  private enrichedBeachData(
+    points: ForecastPoint[],
+    beach: Beach
+  ): BeachForecast[] {
+    return points.map((e) => ({
+      ...{},
+      ...{
+        lat: beach.lat,
+        lng: beach.lng,
+        name: beach.name,
+        position: beach.position,
+        rating: 1, //need to be implemented
+      },
+      ...e,
+    }));
   }
 
   private mapForeacastByTime(forecast: BeachForecast[]): TimeForacast[] {
